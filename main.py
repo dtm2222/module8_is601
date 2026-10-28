@@ -8,6 +8,7 @@ from fastapi.exceptions import RequestValidationError
 from app.operations import add, subtract, multiply, divide  # Ensure correct import path
 import uvicorn
 import logging
+from fastapi import FastAPI, HTTPException, Request
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -70,6 +71,7 @@ async def add_route(operation: OperationRequest):
     """
     try:
         result = add(operation.a, operation.b)
+        logger.info(f"Addition: {operation.a} + {operation.b} = {result}")
         return OperationResponse(result=result)
     except Exception as e:
         logger.error(f"Add Operation Error: {str(e)}")
@@ -82,6 +84,7 @@ async def subtract_route(operation: OperationRequest):
     """
     try:
         result = subtract(operation.a, operation.b)
+        logger.info(f"Subtraction: {operation.a} - {operation.b} = {result}")
         return OperationResponse(result=result)
     except Exception as e:
         logger.error(f"Subtract Operation Error: {str(e)}")
@@ -94,6 +97,7 @@ async def multiply_route(operation: OperationRequest):
     """
     try:
         result = multiply(operation.a, operation.b)
+        logger.info(f"Multiplication: {operation.a} * {operation.b} = {result}")
         return OperationResponse(result=result)
     except Exception as e:
         logger.error(f"Multiply Operation Error: {str(e)}")
