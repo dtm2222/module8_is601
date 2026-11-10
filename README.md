@@ -1,264 +1,182 @@
-# 📦 Project Setup
+# FastAPI Calculator — PostgreSQL & CI/CD
 
----
+## Project Overview
 
-# 🧩 1. Install Homebrew (Mac Only)
+This project is a web-based calculator built using Python and FastAPI. Throughout Modules 8, 9, and 10, I expanded the application by adding database functionality, user management, automated testing, Docker, and a CI/CD pipeline.
 
-> Skip this step if you're on Windows.
+The goal of this project was to better understand how web applications work, how they connect to relational databases, and how automated testing and deployment can improve the development process.
 
-Homebrew is a package manager for macOS.  
-You’ll use it to easily install Git, Python, Docker, etc.
+## Features
 
-**Install Homebrew:**
+- Web-based calculator using FastAPI
+- Basic mathematical operations: addition, subtraction, multiplication, and division
+- PostgreSQL database integration
+- SQLAlchemy models for managing users
+- Pydantic schemas for validating user information
+- CRUD operations for interacting with the database
+- Argon2 password hashing for securely storing passwords
+- Automated unit, integration, and end-to-end testing
+- Docker containerization
+- GitHub Actions CI/CD pipeline
+- Trivy security scanning
+- Automated deployment to Docker Hub
 
-```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-```
+## Technologies Used
 
-**Verify Homebrew:**
+| Technology | Purpose |
+|---|---|
+| Python | Main programming language |
+| FastAPI | Web application and API framework |
+| PostgreSQL | Relational database |
+| SQLAlchemy | Database models and interactions |
+| Pydantic | Data validation |
+| Argon2 | Password hashing |
+| Docker | Application containerization |
+| Docker Compose | Managing application services |
+| pytest | Automated testing |
+| Playwright | End-to-end testing |
+| GitHub Actions | CI/CD automation |
+| Trivy | Docker image security scanning |
 
-```bash
-brew --version
-```
+## Installation and Setup
 
-If you see a version number, you're good to go.
-
----
-
-# 🧩 2. Install and Configure Git
-
-## Install Git
-
-- **MacOS (using Homebrew)**
-
-```bash
-brew install git
-```
-
-- **Windows**
-
-Download and install [Git for Windows](https://git-scm.com/download/win).  
-Accept the default options during installation.
-
-**Verify Git:**
-
-```bash
-git --version
-```
-
----
-
-## Configure Git Globals
-
-Set your name and email so Git tracks your commits properly:
+### 1. Clone the Repository
 
 ```bash
-git config --global user.name "Your Name"
-git config --global user.email "your_email@example.com"
+git clone https://github.com/dtm2222/module8_is601.git
+cd module8_is601
 ```
 
-Confirm the settings:
+### 2. Create a Virtual Environment
 
 ```bash
-git config --list
+python -m venv venv
 ```
 
----
+Activate the environment on Windows:
 
-## Generate SSH Keys and Connect to GitHub
-
-> Only do this once per machine.
-
-1. Generate a new SSH key:
-
-```bash
-ssh-keygen -t ed25519 -C "your_email@example.com"
+```powershell
+.\venv\Scripts\Activate.ps1
 ```
 
-(Press Enter at all prompts.)
-
-2. Start the SSH agent:
-
-```bash
-eval "$(ssh-agent -s)"
-```
-
-3. Add the SSH private key to the agent:
-
-```bash
-ssh-add ~/.ssh/id_ed25519
-```
-
-4. Copy your SSH public key:
-
-- **Mac/Linux:**
-
-```bash
-cat ~/.ssh/id_ed25519.pub | pbcopy
-```
-
-- **Windows (Git Bash):**
-
-```bash
-cat ~/.ssh/id_ed25519.pub | clip
-```
-
-5. Add the key to your GitHub account:
-   - Go to [GitHub SSH Settings](https://github.com/settings/keys)
-   - Click **New SSH Key**, paste the key, save.
-
-6. Test the connection:
-
-```bash
-ssh -T git@github.com
-```
-
-You should see a success message.
-
----
-
-# 🧩 3. Clone the Repository
-
-Now you can safely clone the course project:
-
-```bash
-git clone <repository-url>
-cd <repository-directory>
-```
-
----
-
-# 🛠️ 4. Install Python 3.10+
-
-## Install Python
-
-- **MacOS (Homebrew)**
-
-```bash
-brew install python
-```
-
-- **Windows**
-
-Download and install [Python for Windows](https://www.python.org/downloads/).  
-✅ Make sure you **check the box** `Add Python to PATH` during setup.
-
-**Verify Python:**
-
-```bash
-python3 --version
-```
-or
-```bash
-python --version
-```
-
----
-
-## Create and Activate a Virtual Environment
-
-(Optional but recommended)
-
-```bash
-python3 -m venv venv
-source venv/bin/activate   # Mac/Linux
-venv\Scripts\activate.bat  # Windows
-```
-
-### Install Required Packages
+### 3. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
----
+### 4. Configure PostgreSQL
 
-# 🐳 5. (Optional) Docker Setup
+This project uses PostgreSQL for storing user information and calculator-related data.
 
-> Skip if Docker isn't used in this module.
+Before running database functionality, configure the database connection using the environment variables expected by the application.
 
-## Install Docker
+Do not commit database passwords or other credentials to GitHub.
 
-- [Install Docker Desktop for Mac](https://www.docker.com/products/docker-desktop/)
-- [Install Docker Desktop for Windows](https://www.docker.com/products/docker-desktop/)
-
-## Build Docker Image
+### 5. Run the Application
 
 ```bash
-docker build -t <image-name> .
+uvicorn main:app --reload
 ```
 
-## Run Docker Container
+Open the application at:
+
+http://localhost:8000
+
+FastAPI's interactive API documentation is available at:
+
+http://localhost:8000/docs
+
+## Database Implementation
+
+For Module 10, I integrated SQLAlchemy with PostgreSQL to manage user information.
+
+The User model includes:
+
+- Username
+- Email
+- Password hash
+- Account creation timestamp
+
+I used Pydantic schemas to validate user data and implemented CRUD functions for database operations.
+
+I also added Argon2 password hashing so user passwords are not stored as plain text.
+
+## Testing
+
+I used pytest and Playwright to verify the functionality of the application.
+
+### Test Results
+
+| Test Type | Results |
+|---|---|
+| Unit and integration tests | 35 passed |
+| End-to-end tests | 3 passed |
+| Unit/integration code coverage | 94% |
+
+Run unit and integration tests:
 
 ```bash
-docker run -it --rm <image-name>
+python -m pytest tests/unit tests/integration -q
 ```
 
----
-
-# 🚀 6. Running the Project
-
-- **Without Docker**:
+Run end-to-end tests:
 
 ```bash
-python main.py
+python -m pytest tests/e2e -q
 ```
 
-(or update this if the main script is different.)
+End-to-end tests require the web application to be running in the expected test environment.
 
-- **With Docker**:
+## Docker
+
+I used Docker to containerize the FastAPI application and Docker Compose to manage the application alongside PostgreSQL.
+
+Build the Docker image locally:
 
 ```bash
-docker run -it --rm <image-name>
+docker build -t module10-fastapi-calculator .
 ```
 
----
-
-# 📝 7. Submission Instructions
-
-After finishing your work:
+Download the published image:
 
 ```bash
-git add .
-git commit -m "Complete Module X"
-git push origin main
+docker pull dtm2222/module10-fastapi-calculator:latest
 ```
 
-Then submit the GitHub repository link as instructed.
+The container requires the appropriate database configuration for PostgreSQL-dependent functionality.
 
----
+## CI/CD Pipeline
 
-# 🔥 Useful Commands Cheat Sheet
+For Module 10, I created a GitHub Actions workflow to automate testing, security checks, and deployment.
 
-| Action                         | Command                                          |
-| ------------------------------- | ------------------------------------------------ |
-| Install Homebrew (Mac)          | `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"` |
-| Install Git                     | `brew install git` or Git for Windows installer |
-| Configure Git Global Username  | `git config --global user.name "Your Name"`      |
-| Configure Git Global Email     | `git config --global user.email "you@example.com"` |
-| Clone Repository                | `git clone <repo-url>`                          |
-| Create Virtual Environment     | `python3 -m venv venv`                           |
-| Activate Virtual Environment   | `source venv/bin/activate` / `venv\Scripts\activate.bat` |
-| Install Python Packages        | `pip install -r requirements.txt`               |
-| Build Docker Image              | `docker build -t <image-name> .`                |
-| Run Docker Container            | `docker run -it --rm <image-name>`               |
-| Push Code to GitHub             | `git add . && git commit -m "message" && git push` |
+The pipeline performs the following steps:
 
----
+1. Runs Python tests using a PostgreSQL test database.
+2. Builds the Docker image.
+3. Scans the image for HIGH and CRITICAL security vulnerabilities using Trivy.
+4. Deploys the image to Docker Hub when the required checks pass.
 
-# 📋 Notes
+The workflow uses GitHub repository secrets to securely authenticate with Docker Hub.
 
-- Install **Homebrew** first on Mac.
-- Install and configure **Git** and **SSH** before cloning.
-- Use **Python 3.10+** and **virtual environments** for Python projects.
-- **Docker** is optional depending on the project.
+### CI/CD Results
 
----
+All three workflow jobs completed successfully:
 
-# 📎 Quick Links
+- Run Python Tests — Passed
+- Docker Security Scan — Passed
+- Deploy to Docker Hub — Passed
 
-- [Homebrew](https://brew.sh/)
-- [Git Downloads](https://git-scm.com/downloads)
-- [Python Downloads](https://www.python.org/downloads/)
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-- [GitHub SSH Setup Guide](https://docs.github.com/en/authentication/connecting-to-github-with-ssh)
+## Challenges and What I Learned
+
+One of the biggest challenges I faced was getting all the different components to work together, especially PostgreSQL, Docker, and GitHub Actions.
+
+I also ran into issues with Docker security vulnerabilities and compatibility problems after updating dependencies. By reviewing the errors, modifying the application, and rerunning my tests, I was able to resolve these problems.
+
+This project helped me better understand how a web application is developed, tested, secured, and deployed.
+
+## Project Links
+
+**GitHub Repository:** https://github.com/dtm2222/module8_is601
+
+**Docker Hub Repository:** https://hub.docker.com/r/dtm2222/module10-fastapi-calculator
