@@ -8,6 +8,7 @@ WORKDIR /app
 
 # Install system dependencies
 RUN apt-get update && \
+    apt-get upgrade -y && \
     apt-get install -y --no-install-recommends \
         gcc \
         libpq-dev && \
@@ -15,10 +16,9 @@ RUN apt-get update && \
 
 # Install Python dependencies
 COPY requirements.txt .
-
-RUN python -m pip install --no-cache-dir --upgrade pip && \
-    python -m pip install --no-cache-dir -r requirements.txt
-
+RUN python -m pip install --no-cache-dir --upgrade pip setuptools && \
+    python -m pip install --no-cache-dir -r requirements.txt && \
+    python -m pip uninstall -y pip
 # Copy application files
 COPY . .
 
