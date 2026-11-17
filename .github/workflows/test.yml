@@ -120,8 +120,7 @@ jobs:
           context: .
           push: true
           tags: |
-            dtm2222/module10-fastapi-calculator:latest
-            dtm2222/module10-fastapi-calculator:${{ github.sha }}
+            dtm2222/module11-fastapi-calculator:latest
+            dtm2222/module11-fastapi-calculator:${{ github.sha }}
           platforms: linux/amd64,linux/arm64
           cache-to: type=inline,mode=max
-

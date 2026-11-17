@@ -1,8 +1,14 @@
 
 from datetime import datetime
+from enum import Enum
 
-from pydantic import BaseModel, EmailStr, Field, ConfigDict
-
+from pydantic import (
+    BaseModel,
+    EmailStr,
+    Field,
+    ConfigDict,
+    model_validator
+)
 
 class UserCreate(BaseModel):
     username: str = Field(min_length=3, max_length=50)
@@ -15,5 +21,34 @@ class UserRead(BaseModel):
     username: str
     email: EmailStr
     created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class CalculationType(str, Enum):
+    Add = "Add"
+    Sub = "Sub"
+    Multiply = "Multiply"
+    Divide = "Divide"
+
+
+class CalculationCreate(BaseModel):
+    a: float
+    b: float
+    type: CalculationType
+
+    @model_validator(mode="after")
+    def validate_calculation(self):
+        if self.type == CalculationType.Divide and self.b == 0:
+            raise ValueError("Cannot divide by zero")
+        return self
+
+
+class CalculationRead(BaseModel):
+    id: int
+    a: float
+    b: float
+    type: CalculationType
+    result: float
 
     model_config = ConfigDict(from_attributes=True)
