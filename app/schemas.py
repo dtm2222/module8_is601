@@ -16,6 +16,10 @@ class UserCreate(BaseModel):
     password: str = Field(min_length=8)
 
 
+class UserLogin(BaseModel):
+    username: str
+    password: str
+
 class UserRead(BaseModel):
     id: int
     username: str

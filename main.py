@@ -1,4 +1,21 @@
 # main.py
+from app.models import Calculation
+from app.schemas import CalculationCreate, CalculationRead
+from app.calculation_factory import CalculationFactory
+
+
+from app.models import User
+from app.schemas import UserLogin
+from app.security import verify_password
+
+
+from fastapi import Depends
+from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
+
+from app.database import get_db
+from app.schemas import UserCreate, UserRead
+from app.crud import create_user
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
@@ -117,6 +134,148 @@ async def divide_route(operation: OperationRequest):
     except Exception as e:
         logger.error(f"Divide Operation Internal Error: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@app.post("/users/register", response_model=UserRead, status_code=201)
+def register_user(user: UserCreate, db: Session = Depends(get_db)):
+    try:
+        new_user = create_user(db, user)
+        return new_user
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=409,
+            detail="Username or email already registered"
+        )
+
+
+
+
+# User Login
+@app.post("/users/login")
+def login_user(user: UserLogin, db: Session = Depends(get_db)):
+    existing_user = db.query(User).filter(
+        User.username == user.username
+    ).first()
+
+    if not existing_user or not verify_password(
+        user.password, existing_user.password_hash
+    ):
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid username or password"
+        )
+
+    return {
+        "message": "Login successful",
+        "username": existing_user.username
+    }
+
+
+# Create and save a calculation
+@app.post("/calculations", response_model=CalculationRead, status_code=201)
+def create_calculation(
+    calculation: CalculationCreate,
+    db: Session = Depends(get_db)
+):
+    result = CalculationFactory.calculate(
+        calculation.a,
+        calculation.b,
+        calculation.type
+    )
+
+    new_calculation = Calculation(
+        a=calculation.a,
+        b=calculation.b,
+        type=calculation.type.value,
+        result=result
+    )
+
+    db.add(new_calculation)
+    db.commit()
+    db.refresh(new_calculation)
+
+    return new_calculation
+
+
+# Browse all saved calculations
+@app.get("/calculations", response_model=list[CalculationRead])
+def get_calculations(db: Session = Depends(get_db)):
+    calculations = db.query(Calculation).all()
+    return calculations
+
+
+
+
+
+# Read a specific calculation
+@app.get("/calculations/{calculation_id}", response_model=CalculationRead)
+def get_calculation(
+    calculation_id: int,
+    db: Session = Depends(get_db)
+):
+    calculation = db.query(Calculation).filter(
+        Calculation.id == calculation_id
+    ).first()
+
+    if not calculation:
+        raise HTTPException(
+            status_code=404,
+            detail="Calculation not found"
+        )
+
+    return calculation
+
+# Edit an existing calculation
+@app.put("/calculations/{calculation_id}", response_model=CalculationRead)
+def update_calculation(
+    calculation_id: int,
+    calculation: CalculationCreate,
+    db: Session = Depends(get_db)
+):
+    existing_calculation = db.query(Calculation).filter(
+        Calculation.id == calculation_id
+    ).first()
+
+    if not existing_calculation:
+        raise HTTPException(
+            status_code=404,
+            detail="Calculation not found"
+        )
+
+    existing_calculation.a = calculation.a
+    existing_calculation.b = calculation.b
+    existing_calculation.type = calculation.type.value
+    existing_calculation.result = CalculationFactory.calculate(
+        calculation.a,
+        calculation.b,
+        calculation.type
+    )
+
+    db.commit()
+    db.refresh(existing_calculation)
+
+    return existing_calculation
+
+# Delete an existing calculation
+@app.delete("/calculations/{calculation_id}", status_code=204)
+def delete_calculation(
+    calculation_id: int,
+    db: Session = Depends(get_db)
+):
+    calculation = db.query(Calculation).filter(
+        Calculation.id == calculation_id
+    ).first()
+
+    if not calculation:
+        raise HTTPException(
+            status_code=404,
+            detail="Calculation not found"
+        )
+
+    db.delete(calculation)
+    db.commit()
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)
